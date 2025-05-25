@@ -152,17 +152,20 @@ document.addEventListener('DOMContentLoaded', function () {
   * @param {HTMLElement} editButton - The edit button.
   * @param {HTMLElement} dropdownMenu - The dropdown menu.
   */
-  const setupHoverEvents = (element, wrapperElement, editButton, dropdownMenu) => {
+  const setupHoverEvents = (element, wrapperElement, buttonGroup, elementInfo, dropdownMenu, contentElement) => {
+    const ctypeClass = contentElement.element.CType ? `xima-typo3-frontend-edit--indicator-${contentElement.element.CType}` : '';
+    
     element.addEventListener('mouseover', () => {
-      positionElements(element, wrapperElement, editButton, dropdownMenu);
-      element.classList.add('xima-typo3-frontend-edit--edit-container');
+      positionElements(element, wrapperElement, buttonGroup, elementInfo, dropdownMenu);
+      element.classList.add('xima-typo3-frontend-edit--indicator', ctypeClass);
     });
-
+  
     element.addEventListener('mouseout', (event) => {
-      if (event.relatedTarget === editButton || event.relatedTarget === dropdownMenu) return;
-      editButton.style.display = 'none';
+      if (event.relatedTarget === buttonGroup || event.relatedTarget === dropdownMenu) return;
+      
+      buttonGroup.style.display = 'none';
       dropdownMenu.style.display = 'none';
-      element.classList.remove('xima-typo3-frontend-edit--edit-container');
+      element.classList.remove('xima-typo3-frontend-edit--indicator', ctypeClass);
     });
   };
 
@@ -175,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const cid = menu.getAttribute('data-cid');
         menu.style.display = 'none';
         document.querySelector(`.xima-typo3-frontend-edit--edit-button[data-cid="${cid}"]`).style.display = 'none';
-        document.querySelector(`#c${cid}`).classList.remove('xima-typo3-frontend-edit--edit-container');
+        document.querySelector(`#c${cid}`).classList.remove('xima-typo3-frontend-edit--indicator');
       });
     });
 
@@ -219,6 +222,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const wrapperElement = document.createElement('div');
       wrapperElement.className = 'xima-typo3-frontend-edit--wrapper';
+      const ctype = contentElement.element.CType;
+      if (ctype) wrapperElement.classList.add(`xima-typo3-frontend-edit--wrapper-${ctype}`);
       wrapperElement.appendChild(editButton);
       if (!simpleMode) wrapperElement.appendChild(dropdownMenu);
       document.body.appendChild(wrapperElement);
