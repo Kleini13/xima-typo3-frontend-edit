@@ -87,46 +87,12 @@ When enabled, the edit button becomes a direct link to the edit form, and a sepa
 
 ---
 
-### 4. CSS-Based Icon Implementation
-
-**Purpose**: Move SVG icons from JavaScript to CSS for better performance and maintainability.
-
-#### Files Modified:
-- `Resources/Public/Css/FrontendEdit.css`:
-  - Added CSS-based SVG icons using data URIs
-  - Added `.frontend-edit--edit-button--showmore::before` for edit icon
-  - Added `.frontend-edit--more-button::before` for more icon
-  - Removed inline SVG icon classes
-- `Resources/Public/JavaScript/frontend_edit.js`:
-  - Modified `createEditButton()` to use CSS classes instead of inline SVG
-  - Modified `createMoreButton()` to use CSS classes instead of inline SVG
-  - Added `frontend-edit--edit-button--showmore` class for showMore mode
-
-#### Functionality:
-**CSS-Based Icons**:
-- Edit icon (pencil) displayed via CSS pseudo-element when in showMore mode
-- More icon (three dots) displayed via CSS pseudo-element
-- Better performance through CSS rendering instead of DOM manipulation
-- Easier maintenance and customization
-
-**Icon Implementation**:
-- Uses data URI encoded SVG for optimal performance
-- Maintains scalability and color inheritance
-- Consistent 16x16px sizing across all icons
-
----
 
 ## Technical Implementation Details
 
 ### Button Grouping
 - All buttons are consistently wrapped in `.frontend-edit--button-group` for uniform positioning
 - CSS classes `.frontend-edit--edit-button` and `.frontend-edit--more-button` utilize existing styles
-
-### Icons
-- Edit button uses CSS-based pencil SVG icon when in `showMore` mode
-- More button uses CSS-based three dots SVG icon
-- Icons are implemented as CSS pseudo-elements with data URI SVGs for optimal performance
-- Maintains backward compatibility with existing icon system
 
 ### Wrapper-Based Display Control
 - Element wrapper visibility is controlled via JavaScript for proper positioning
@@ -153,9 +119,7 @@ plugin.tx_ximatypo3frontendedit.settings {
 1. **Improved UX**: Direct edit access reduces clicks for common editing tasks
 2. **Better Visual Hierarchy**: Element info is more prominent when displayed separately
 3. **Flexible Configuration**: Features can be enabled/disabled independently
-4. **Consistent Styling**: All buttons use the same positioning system regardless of mode
-5. **Better Performance**: CSS-based icons reduce DOM manipulation and improve rendering
-6. **Reliable Display**: Wrapper-based control ensures consistent elementInfo visibility
+4. **Reliable Display**: Wrapper-based control ensures consistent elementInfo visibility
 
 ## Migration Notes
 - No migration required - features are opt-in via TypoScript configuration
