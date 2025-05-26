@@ -93,14 +93,20 @@ final class SettingsService
             return $this->configuration;
         }
 
-        if (version_compare(VersionNumberUtility::getCurrentTypo3Version(), '12.0.0', '<')) {
-            $fullTypoScript = $this->getTypoScriptSetupArrayV11();
-        } else {
-            $fullTypoScript = $this->getTypoScriptSetupArrayV12($GLOBALS['TYPO3_REQUEST']);
-        }
+        try {
+            if (version_compare(VersionNumberUtility::getCurrentTypo3Version(), '12.0.0', '<')) {
+                $fullTypoScript = $this->getTypoScriptSetupArrayV11();
+            } else {
+                $fullTypoScript = $this->getTypoScriptSetupArrayV12($GLOBALS['TYPO3_REQUEST']);
+            }
 
-        $settings = $fullTypoScript['plugin.']['tx_ximatypo3frontendedit.']['settings.'] ?? [];
-        $this->configuration = GeneralUtility::removeDotsFromTS($settings);
+            $settings = $fullTypoScript['plugin.']['tx_ximatypo3frontendedit.']['settings.'] ?? [];
+            $this->configuration = GeneralUtility::removeDotsFromTS($settings);
+        } catch (\Exception $e) {
+            error_log('Frontend Edit SettingsService: Failed to get TypoScript configuration: ' . $e->getMessage());
+            // Return empty configuration as fallback
+            $this->configuration = [];
+        }
 
         return $this->configuration;
     }
@@ -125,21 +131,54 @@ final class SettingsService
     private function getTypoScriptSetupArrayV12(ServerRequestInterface $request): array
     {
         try {
-            $fullTypoScript = $request->getAttribute('frontend.typoscript')->getSetupArray();
+            // Try to get TypoScript from request attribute first
+            $typoscriptAttribute = $request->getAttribute('frontend.typoscript');
+            if ($typoscriptAttribute) {
+                return $typoscriptAttribute->getSetupArray();
+            }
+            
+            // Fallback: try to get from TSFE if available
+            if (isset($GLOBALS['TSFE']) && $GLOBALS['TSFE']->tmpl && !empty($GLOBALS['TSFE']->tmpl->setup)) {
+                return $GLOBALS['TSFE']->tmpl->setup;
+            }
+            
+            throw new \Exception('No TypoScript setup available');
+            
         } catch (\Exception $e) {
-            // An exception is thrown, when TypoScript setup array is not available. This is usually the case,
-            // when the current page request is cached. Therefore, the TSFE TypoScript parsing is forced here.
+            error_log('Frontend Edit SettingsService: TypoScript access failed: ' . $e->getMessage());
+            
+            try {
+                // An exception is thrown, when TypoScript setup array is not available. This is usually the case,
+                // when the current page request is cached. Therefore, the TSFE TypoScript parsing is forced here.
 
-            // Set a TypoScriptAspect which forces template parsing
-            GeneralUtility::makeInstance(Context::class)
-                ->setAspect('typoscript', GeneralUtility::makeInstance(TypoScriptAspect::class, true));
-            $tsfe = $request->getAttribute('frontend.controller');
-            $requestWithFullTypoScript = $tsfe->getFromCache($request);
+                // Set a TypoScriptAspect which forces template parsing
+                GeneralUtility::makeInstance(Context::class)
+                    ->setAspect('typoscript', GeneralUtility::makeInstance(TypoScriptAspect::class, true));
+                
+                $tsfe = $request->getAttribute('frontend.controller');
+                if (!$tsfe) {
+                    throw new \Exception('No frontend controller available');
+                }
+                
+                $requestWithFullTypoScript = $tsfe->getFromCache($request);
+                if (!$requestWithFullTypoScript) {
+                    throw new \Exception('Failed to get request from cache');
+                }
 
-            // Call TSFE getFromCache, which re-processes TypoScript respecting $forcedTemplateParsing property
-            // from TypoScriptAspect
-            $fullTypoScript = $requestWithFullTypoScript->getAttribute('frontend.typoscript')->getSetupArray();
+                // Call TSFE getFromCache, which re-processes TypoScript respecting $forcedTemplateParsing property
+                // from TypoScriptAspect
+                $typoscriptAttribute = $requestWithFullTypoScript->getAttribute('frontend.typoscript');
+                if (!$typoscriptAttribute) {
+                    throw new \Exception('No TypoScript attribute in cached request');
+                }
+                
+                return $typoscriptAttribute->getSetupArray();
+                
+            } catch (\Exception $fallbackException) {
+                error_log('Frontend Edit SettingsService: TypoScript fallback also failed: ' . $fallbackException->getMessage());
+                // Return empty array as last resort
+                return [];
+            }
         }
-        return $fullTypoScript;
     }
 }

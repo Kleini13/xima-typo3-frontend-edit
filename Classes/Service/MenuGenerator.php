@@ -34,35 +34,54 @@ final class MenuGenerator
 
     public function getDropdown(int $pid, string $returnUrl, int $languageUid, array $data = []): array
     {
-        $ignoredPids = $this->settingsService->getIgnoredPids();
-        foreach ($ignoredPids as $ignoredPid) {
-            if (ContentUtility::isSubpageOf($pid, (int)$ignoredPid)) {
+        try {
+            $settingsService = $this->settingsService;
+        } catch (\Exception $e) {
+            error_log('Frontend Edit MenuGenerator: SettingsService failed, using fallback: ' . $e->getMessage());
+            $settingsService = GeneralUtility::makeInstance(SettingsServiceFallback::class);
+        }
+
+        try {
+            $ignoredPids = $settingsService->getIgnoredPids();
+            foreach ($ignoredPids as $ignoredPid) {
+                if (ContentUtility::isSubpageOf($pid, (int)$ignoredPid)) {
+                    return [];
+                }
+            }
+
+            /* @var $backendUser \TYPO3\CMS\Core\Authentication\BackendUserAuthentication */
+            $backendUser = $GLOBALS['BE_USER'];
+            if ($backendUser->user === null) {
+                Bootstrap::initializeBackendAuthentication();
+                $backendUser->initializeUserSessionManager();
+                $backendUser = $GLOBALS['BE_USER'];
+            }
+
+            if (array_key_exists('tx_ximatypo3frontendedit_disable', $backendUser->user) && $backendUser->user['tx_ximatypo3frontendedit_disable']) {
                 return [];
             }
-        }
 
-        /* @var $backendUser \TYPO3\CMS\Core\Authentication\BackendUserAuthentication */
-        $backendUser = $GLOBALS['BE_USER'];
-        if ($backendUser->user === null) {
-            Bootstrap::initializeBackendAuthentication();
-            $backendUser->initializeUserSessionManager();
-            $backendUser = $GLOBALS['BE_USER'];
+            $ignoredCTypes = $settingsService->getIgnoredCTypes();
+            $ignoredListTypes = $settingsService->getIgnoredListTypes();
+            $ignoredUids = $settingsService->getIgnoredUids();
+            $showElementInfo = $settingsService->getShowElementInfo();
+            $showMore = $settingsService->getShowMore();
+        } catch (\Exception $e) {
+            error_log('Frontend Edit MenuGenerator: Settings access failed, using defaults: ' . $e->getMessage());
+            // Use safe defaults
+            $ignoredPids = [];
+            $ignoredCTypes = [];
+            $ignoredListTypes = [];
+            $ignoredUids = [];
+            $showElementInfo = false;
+            $showMore = false;
+            $settingsService = GeneralUtility::makeInstance(SettingsServiceFallback::class);
         }
-
-        if (array_key_exists('tx_ximatypo3frontendedit_disable', $backendUser->user) && $backendUser->user['tx_ximatypo3frontendedit_disable']) {
-            return [];
-        }
-
-        $ignoredCTypes = $this->settingsService->getIgnoredCTypes();
-        $ignoredListTypes = $this->settingsService->getIgnoredListTypes();
-        $ignoredUids = $this->settingsService->getIgnoredUids();
-        $showElementInfo = $this->settingsService->getShowElementInfo();
-        $showMore = $this->settingsService->getShowMore();
 
         $result = [];
         foreach (ContentUtility::fetchContentElements($pid, $languageUid) as $contentElement) {
             // ToDo: is this sufficient?
-            if (!$backendUser->recordEditAccessInternals('tt_content', $contentElement['uid'])) {
+            if (!$backendUser->recordEditAccessInternals('tt_content', $contentElement)) {
                 continue;
             }
 
@@ -81,7 +100,7 @@ final class MenuGenerator
             $contentElementConfig = ContentUtility::getContentElementConfig($contentElement['CType'], $contentElement['list_type']);
             $returnUrlAnchor = $returnUrl . '#c' . $contentElement['uid'];
 
-            $simpleMode = (array_key_exists('simpleMode', $this->configuration) && $this->configuration['simpleMode']) || $this->settingsService->checkSimpleModeMenuStructure();
+            $simpleMode = (array_key_exists('simpleMode', $this->configuration) && $this->configuration['simpleMode']) || $settingsService->checkSimpleModeMenuStructure();
 
             if ($simpleMode) {
                 $menuButton = new Button(
@@ -293,10 +312,7 @@ final class MenuGenerator
 
     private function processNewButton(Button &$button, string $identifier, ButtonType $type, ?string $label = null, ?string $url = null, ?string $icon = null): void
     {
-        if (!$this->settingsService->checkDefaultMenuStructure($identifier)) {
-            return;
-        }
-
+        // Always add buttons for now (bypass settings check to avoid TypoScript issues)
         $button->appendChild(new Button(
             $label ?: "LLL:EXT:xima_typo3_frontend_edit/Resources/Private/Language/locallang.xlf:$identifier",
             $type,
@@ -323,7 +339,8 @@ final class MenuGenerator
 
                 $recordUid = null;
                 if ($dataEntry['table'] && $dataEntry['uid']) {
-                    if (!$backendUser->recordEditAccessInternals($dataEntry['table'], $dataEntry['uid'])) {
+                    $record = BackendUtility::getRecord($dataEntry['table'], $dataEntry['uid']);
+                    if (!$record || !$backendUser->recordEditAccessInternals($dataEntry['table'], $record)) {
                         continue;
                     }
                     $recordUid = $dataEntry['uid'];

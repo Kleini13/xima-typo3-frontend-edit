@@ -30,30 +30,55 @@ class EditInformationMiddleware implements MiddlewareInterface
         $response = $handler->handle($request);
         $params = $request->getQueryParams();
 
-        if (isset($params['type'])&& $params['type'] === Configuration::TYPE) {
-            $this->configuration = $this->extensionConfiguration->get(Configuration::EXT_KEY);
+        if (isset($params['type']) && $params['type'] === Configuration::TYPE) {
+            try {
+                $this->configuration = $this->extensionConfiguration->get(Configuration::EXT_KEY);
 
-            $pid = $request->getAttribute('routing')->getPageId();
-            $languageUid = $request->getAttribute('language')->getLanguageId();
-            $returnUrl = ($request->getHeaderLine('Referer') === '' || (array_key_exists('forceReturnUrlGeneration', $this->configuration) && $this->configuration['forceReturnUrlGeneration'])) ? UrlUtility::getUrl($pid, $languageUid) : $request->getHeaderLine('Referer');
+                $routing = $request->getAttribute('routing');
+                $language = $request->getAttribute('language');
+                
+                if (!$routing) {
+                    error_log('Frontend Edit: No routing attribute found in request');
+                    return new JsonResponse(['error' => 'No routing information available'], 400);
+                }
+                
+                if (!$language) {
+                    error_log('Frontend Edit: No language attribute found in request');
+                    return new JsonResponse(['error' => 'No language information available'], 400);
+                }
 
-            $data = json_decode($request->getBody()->getContents(), true) ?? [];
+                $pid = $routing->getPageId();
+                $languageUid = $language->getLanguageId();
+                $returnUrl = ($request->getHeaderLine('Referer') === '' || (array_key_exists('forceReturnUrlGeneration', $this->configuration) && $this->configuration['forceReturnUrlGeneration'])) ? UrlUtility::getUrl($pid, $languageUid) : $request->getHeaderLine('Referer');
 
-            if (!$this->checkBackendUserPageAccess((int)$pid)) {
-                return new JsonResponse([]);
+                $bodyContents = $request->getBody()->getContents();
+                $data = json_decode($bodyContents, true) ?? [];
+                
+                if ($bodyContents && json_last_error() !== JSON_ERROR_NONE) {
+                    error_log('Frontend Edit: JSON decode error: ' . json_last_error_msg());
+                    return new JsonResponse(['error' => 'Invalid JSON data'], 400);
+                }
+
+                if (!$this->checkBackendUserPageAccess((int)$pid)) {
+                    error_log('Frontend Edit: Backend user has no access to page ' . $pid);
+                    return new JsonResponse(['error' => 'Access denied'], 403);
+                }
+
+                $dropdownData = $this->menuGenerator->getDropdown(
+                    (int)$pid,
+                    $returnUrl,
+                    (int)$languageUid,
+                    $data
+                );
+
+                return new JsonResponse(
+                    mb_convert_encoding($dropdownData, 'UTF-8')
+                );
+            } catch (\Exception $e) {
+                error_log('Frontend Edit: Exception in middleware: ' . $e->getMessage());
+                error_log('Frontend Edit: Exception trace: ' . $e->getTraceAsString());
+                return new JsonResponse(['error' => 'Internal server error: ' . $e->getMessage()], 500);
             }
-
-            return new JsonResponse(
-                mb_convert_encoding(
-                    $this->menuGenerator->getDropdown(
-                        (int)$pid,
-                        $returnUrl,
-                        (int)$languageUid,
-                        $data
-                    ),
-                    'UTF-8'
-                )
-            );
         }
 
         return $response;

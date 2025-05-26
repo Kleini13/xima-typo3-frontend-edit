@@ -14,7 +14,7 @@
     --frontend-edit-border-radius: 0.25rem;
     --frontent-edit-box-shadow: 0 0 0.0625rem 0.0625rem rgba(0, 0, 0, .1);
     --frontent-edit-outline: 1px;
-    --frontent-edit-outline-spezial: 1.5px;
+    --frontent-edit-outline-spezial: 1px;
     --frontent-edit-font-family: 'Helvetica Neue', Helvetica, Arial, Verdana, sans-serif;
 }
     
@@ -100,6 +100,10 @@
 .frontend-edit--element-info-text span,
 .frontend-edit--element-info-icon {
     padding-right: 0.1875rem;
+}
+
+.frontend-edit--element-info-text span:first-child::after {
+    content: " -";
 }
 .frontend-edit--element-info-icon svg {
     width: 1rem;
