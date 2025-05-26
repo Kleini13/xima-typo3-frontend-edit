@@ -9,6 +9,11 @@ plugin.tx_ximatypo3frontendedit {
     # cat=xima_typo3_frontend_edit/settings/p; type=string; label=Ignore specific uid of content elements from frontend edit
     ignoredUids =
 
+    # cat=xima_typo3_frontend_edit/settings/p; type=boolean; label=Show element info as separate element in frontend
+    showElementInfo = 1
+    # cat=xima_typo3_frontend_edit/settings/p; type=boolean; label=Show separate edit and more buttons
+    showMore = 1
+
     defaultMenuStructure {
       # cat=xima_typo3_frontend_edit/defaultMenuStructure/p; type=boolean; label=Show the info section
       div_info = 1

@@ -1,109 +1,217 @@
-.xima-typo3-frontend-edit--indicator {
-    outline: 1px dashed gray;
+:root {
+    color-scheme: light-dark;
+    --frontend-edit-text-color: light-dark(#EAEBEB, #2D3232);
+    --frontend-edit-button-border-color: light-dark(#424747, #e9ecef);
+    --frontent-edit-botton-bg: light-dark(#2D3232, #f8f9fa );
+    --frontent-edit-botton-bg-hover: light-dark(#424747, #f8f9fa );
+
+    --frontend-edit-section-color: #7B58FF;
+    --frontend-edit-container-color: #5599ff;
+    --frontend-edit-container-md-color: #aad400;
+    --frontend-edit-container-sm-color: #ff8700;
+    --frontend-edit-container-xs-color: #c83c3c;
+
+    --frontend-edit-border-radius: 0.25rem;
+    --frontent-edit-box-shadow: 0 0 0.0625rem 0.0625rem rgba(0, 0, 0, .1);
+    --frontent-edit-outline: 1px;
+    --frontent-edit-outline-spezial: 1.5px;
+    --frontent-edit-font-family: 'Helvetica Neue', Helvetica, Arial, Verdana, sans-serif;
+}
+    
+/* Class renamed to indicator without using the term container */
+.frontend-edit--indicator {
+    outline: var(--frontent-edit-outline) dashed #424747;
+}
+/* class definition for b13 container using the cType name */
+.frontend-edit--indicator[class*="section"] {
+    outline: var(--frontent-edit-outline-spezial) solid var(--frontend-edit-section-color);
+    outline-offset: 1.5rem;
+    background-color: hsl(from var(--frontend-edit-section-color) h s l / 0.05);
+}
+.frontend-edit--indicator[class*="container"] {
+    outline: var(--frontent-edit-outline-spezial) solid var(--frontend-edit-container-color);
+    outline-offset: 1.5rem;
+    background-color: hsl(from var(--frontend-edit-container-color) h s l / 0.1);
+}
+.frontend-edit--indicator[class*="container"][class*="md"] {
+    outline: var(--frontent-edit-outline-spezial) solid var(--frontend-edit-container-md-color);
+    outline-offset: 1.5rem;
+    background-color: hsl(from var(--frontend-edit-container-md-color) h s l / 0.1);
+}
+.frontend-edit--indicator[class*="container"][class*="sm"] {
+    outline: var(--frontent-edit-outline-spezial) solid var(--frontend-edit-container-sm-color);
+    outline-offset: 1.5rem;
+    background-color: hsl(from var(--frontend-edit-container-sm-color) h s l / 0.1);
+}
+.frontend-edit--indicator[class*="container"][class*="xs"] {
+    outline: var(--frontent-edit-outline-spezial) solid var(--frontend-edit-container-xs-color);
+    outline-offset: 1.5rem;
+    background-color: hsl(from var(--frontend-edit-container-xs-color) h s l / 0.1);
 }
 
-.xima-typo3-frontend-edit--wrapper {
+
+
+/* sytle definition for b13 container using the cType name */
+.frontend-edit--wrapper[class*="section"] .frontend-edit--button-group,
+.frontend-edit--wrapper[class*="container"] .frontend-edit--button-group {
+    top: -2.5rem;
+    right: 0;
+    justify-content: center;
+}
+
+.frontend-edit--wrapper[class*="section"] .frontend-edit--element-info,
+.frontend-edit--wrapper[class*="container"] .frontend-edit--element-info {
+    top: -2.25rem;
+}
+
+.frontend-edit--wrapper {
+    border: 0px solid red;
     position: absolute;
+    z-index: 5000;
+    display: flex;
+    pointer-events: none; /* Allow clicks to pass through to the underlying element */
 }
 
-.xima-typo3-frontend-edit--edit-button {
+.frontend-edit--element-info {
+    display: none;
+    position: absolute;
+    top: -0.75rem;
+    left: 0.25rem;
+    color: var(--frontend-edit-text-color);
+    background-color: var(--frontent-edit-botton-bg);
+    border-radius: var(--frontend-edit-border-radius);
+    box-shadow: var(--frontent-edit-box-shadow);
+    padding: 0.125rem 0.25rem;
+    font-family: var(--frontent-edit-font-family);
+    font-size: 0.75rem;
+    line-height: 1;
+    z-index: 5001;
+    white-space: nowrap;
+}
+
+.frontend-edit--element-info-text,
+.frontend-edit--element-info-icon {
+    display: inline-block;
+    vertical-align: middle;
+    padding: 0;
+    margin: 0;
+
+}
+.frontend-edit--element-info-text span,
+.frontend-edit--element-info-icon {
+    padding-right: 0.1875rem;
+}
+.frontend-edit--element-info-icon svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.frontend-edit--button-group {
+    width: 100%;
+    display: none;
+    position: absolute;
+    top: 0.313rem;
+    right: 0.313rem;
+    flex-direction: row;
+    justify-content: flex-end;
+    gap: 0.313rem;
+    z-index: 5001;
+    pointer-events: auto; /* Re-enable pointer events for buttons */
+}
+
+.frontend-edit--edit-button,
+.frontend-edit--more-button {
     position: relative;
     align-content: center;
     justify-content: center;
-    display: none;
-    width: 30px;
-    height: 30px;
-    background-color: white;
-    color: #333;
-    border-radius: 15px;
-    border: 1px solid #CCC;
+    display: flex;
+    width: 1.875rem;
+    height: 1.875rem;
+    background-color: var(--frontent-edit-botton-bg);
+    color: var(--frontend-edit-text-color);
+    border-radius: var(--frontend-edit-border-radius);
+    border: 1px solid var(--frontend-edit-button-border-color);
     cursor: pointer;
-    z-index: 1000;
-    opacity: 0.5;
     padding: 0;
     margin: 0;
     flex-wrap: wrap;
 }
 
-.xima-typo3-frontend-edit--edit-button svg {
-    width: 10px;
+.frontend-edit--edit-button svg,
+.frontend-edit--more-button svg {
+    width: 1rem;
+    height: 1rem;
 }
 
-.xima-typo3-frontend-edit--edit-button:hover {
-    opacity: 1;
-    box-shadow: 0 0 1px 1px rgba(0, 0, 0, .1);
+.frontend-edit--edit-button:hover,
+.frontend-edit--more-button:hover {
+    color: var(--frontend-edit-text-color);
+    background-color: var(--frontent-edit-botton-bg-hover);
+    box-shadow: var(--frontent-edit-box-shadow);
 }
 
-.xima-typo3-frontend-edit--dropdown-menu {
+.frontend-edit--dropdown-menu {
     position: absolute;
     display: none;
     right: 0;
     margin: 0;
-    min-width: 120px;
-    z-index: 1000;
+    min-width: 7.5rem;
+    z-index: 5001;
     direction: ltr;
-    background: transparent;
-    font-family: 'Helvetica Neue', Helvetica, Arial, Verdana, sans-serif;
+    background-color: transparent;
+    font-family: var(--frontent-edit-font-family);
 }
 
-.xima-typo3-frontend-edit--dropdown-menu-inner {
-    margin: 10px;
-    background: white;
+.frontend-edit--dropdown-menu-inner {
+    margin: 0.625rem;
+    background-color: var(--frontent-edit-botton-bg);
     border: 0 none;
-    border-radius: .75rem;
-    box-shadow: 0 0 1px 1px rgba(0, 0, 0, .1);
-    padding: .5em;
+    border-radius: 0.75rem;
+    box-shadow: var(--frontent-edit-box-shadow);
+    padding: 0.5em;
 }
 
-.xima-typo3-frontend-edit--dropdown-menu-inner a, .xima-typo3-frontend-edit--dropdown-menu-inner div {
+.frontend-edit--dropdown-menu-inner a, .frontend-edit--dropdown-menu-inner div {
     display: flex;
     align-items: flex-start;
-    gap: 5px;
-    padding: 10px;
-    color: #333;
+    gap: 0.313rem;
+    padding: 0.625rem;
+    color: var(--frontend-edit-text-color);
     text-decoration: none;
     text-align: left;
     white-space: nowrap;
     margin: 0;
-    background: transparent;
-    border-radius: .375rem;
-    font-size: 14px;
-    line-height: 14px;
+    background-color: transparent;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    line-height: 0.875rem;
     font-weight: normal;
 }
 
-.xima-typo3-frontend-edit--dropdown-menu-inner div {
+.frontend-edit--dropdown-menu-inner div {
     border-radius: 0;
 }
 
-.xima-typo3-frontend-edit--dropdown-menu-inner p {
-    margin-top: 10px;
+.frontend-edit--dropdown-menu-inner p {
+    margin-top: 0.625rem;
     margin-bottom: 0;
-    font-size: 14px;
+    font-size: 0.875rem;
     line-height: 1;
 }
 
-.xima-typo3-frontend-edit--dropdown-menu-inner div.xima-typo3-frontend-edit--divider {
-    color: #666;
+.frontend-edit--dropdown-menu-inner div.frontend-edit--divider {
+    color: var(--frontend-edit-text-color);
     text-transform: uppercase;
-    font-size: 10px;
-    border-bottom: 1px solid rgba(0, 0, 0, .1);
-    padding: 5px;
+    font-size: 0.625rem;
+    border-bottom: 1px solid var(--frontend-edit-button-border-color);
+    padding: 0.313rem;
 }
 
-.xima-typo3-frontend-edit--dropdown-menu-inner a svg, .xima-typo3-frontend-edit--dropdown-menu-inner div svg {
-    width: 16px;
-    margin-top: -1px;
+.frontend-edit--dropdown-menu-inner a svg, .frontend-edit--dropdown-menu-inner div svg {
+    width: 1rem;
+    margin-top: -0.0625rem;
 }
 
-.xima-typo3-frontend-edit--dropdown-menu-inner a:hover {
-    background-color: #f0f0f0;
-}
-
-.xima-typo3-frontend-edit--edit-container .xima-typo3-frontend-edit--edit-button {
-    visibility: hidden;
-}
-
-.xima-typo3-frontend-edit--edit-container:hover .xima-typo3-frontend-edit--edit-button {
-    visibility: visible;
+.frontend-edit--dropdown-menu-inner a:hover {
+    background-color: var(--frontend-edit-button-border-color);
 }

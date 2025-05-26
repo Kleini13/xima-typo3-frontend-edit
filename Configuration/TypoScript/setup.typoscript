@@ -4,6 +4,8 @@ plugin.tx_ximatypo3frontendedit {
     ignoreCTypes = {$plugin.tx_ximatypo3frontendedit.settings.ignoreCTypes}
     ignoreListTypes = {$plugin.tx_ximatypo3frontendedit.settings.ignoreListTypes}
     ignoredUids = {$plugin.tx_ximatypo3frontendedit.settings.ignoredUids}
+    showElementInfo = {$plugin.tx_ximatypo3frontendedit.settings.showElementInfo}
+    showMore = {$plugin.tx_ximatypo3frontendedit.settings.showMore}
 
     defaultMenuStructure {
       div_info = {$plugin.tx_ximatypo3frontendedit.settings.defaultMenuStructure.div_info}

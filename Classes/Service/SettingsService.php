@@ -38,6 +38,18 @@ final class SettingsService
         return array_key_exists('ignoredUids', $configuration) ? explode(',', $configuration['ignoredUids']) : [];
     }
 
+    public function getShowElementInfo(): bool
+    {
+        $configuration = $this->getConfiguration();
+        return array_key_exists('showElementInfo', $configuration) && (bool)$configuration['showElementInfo'];
+    }
+
+    public function getShowMore(): bool
+    {
+        $configuration = $this->getConfiguration();
+        return array_key_exists('showMore', $configuration) && (bool)$configuration['showMore'];
+    }
+
     public function checkDefaultMenuStructure(string $identifier): bool
     {
         $configuration = $this->getConfiguration();

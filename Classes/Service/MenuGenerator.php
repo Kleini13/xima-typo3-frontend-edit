@@ -56,6 +56,8 @@ final class MenuGenerator
         $ignoredCTypes = $this->settingsService->getIgnoredCTypes();
         $ignoredListTypes = $this->settingsService->getIgnoredListTypes();
         $ignoredUids = $this->settingsService->getIgnoredUids();
+        $showElementInfo = $this->settingsService->getShowElementInfo();
+        $showMore = $this->settingsService->getShowMore();
 
         $result = [];
         foreach (ContentUtility::fetchContentElements($pid, $languageUid) as $contentElement) {
@@ -108,18 +110,20 @@ final class MenuGenerator
                 );
 
                 /*
-                * Info
+                * Info - only add if showElementInfo is disabled
                 */
-                $this->processNewButton($menuButton, 'div_info', ButtonType::Divider);
+                if (!$showElementInfo) {
+                    $this->processNewButton($menuButton, 'div_info', ButtonType::Divider);
 
-                $additionalUid = $GLOBALS['BE_USER']->isAdmin() ? ' <code>[' . $contentElement['uid'] . ']</code>' : '';
-                $this->processNewButton(
-                    $menuButton,
-                    'header',
-                    ButtonType::Info,
-                    label: $GLOBALS['LANG']->sL($contentElementConfig['label']) . '<p><small>' . ($contentElement['header'] ? ContentUtility::shortenString($contentElement['header']) : '') . $additionalUid . '</small></p>',
-                    icon: $contentElementConfig['icon']
-                );
+                    $additionalUid = $GLOBALS['BE_USER']->isAdmin() ? ' <code>[' . $contentElement['uid'] . ']</code>' : '';
+                    $this->processNewButton(
+                        $menuButton,
+                        'header',
+                        ButtonType::Info,
+                        label: $GLOBALS['LANG']->sL($contentElementConfig['label']) . '<p><small>' . ($contentElement['header'] ? ContentUtility::shortenString($contentElement['header']) : '') . $additionalUid . '</small></p>',
+                        icon: $contentElementConfig['icon']
+                    );
+                }
 
                 /*
                 * Edit
@@ -235,16 +239,56 @@ final class MenuGenerator
             * Event
             */
             $this->eventDispatcher->dispatch(new FrontendEditDropdownModifyEvent($contentElement, $menuButton, $returnUrlAnchor));
-            $result[$contentElement['uid']] = [
+            
+            $elementResult = [
                 'element' => $contentElement,
                 'menu' => $menuButton,
+                'showMore' => $showMore,
             ];
+            
+            // Add elementInfo if showElementInfo is enabled
+            if ($showElementInfo) {
+                $elementResult['elementInfo'] = $this->getElementInfo($contentElement, $contentElementConfig, $backendUser);
+            }
+            
+            // Add editUrl if showMore is enabled
+            if ($showMore) {
+                $elementResult['editUrl'] = GeneralUtility::makeInstance(UriBuilder::class)->buildUriFromRoute(
+                    'record_edit',
+                    [
+                        'edit' => [
+                            'tt_content' => [
+                                $contentElement['uid'] => 'edit',
+                            ],
+                            'language' => $languageUid,
+                        ],
+                        'returnUrl' => $returnUrlAnchor,
+                    ]
+                )->__toString() . '&tx_ximatypo3frontendedit';
+            }
+            
+            $result[$contentElement['uid']] = $elementResult;
         }
 
-        foreach ($result as $contentElement) {
-            $result[$contentElement['element']['uid']]['menu'] = $contentElement['menu']->render();
+        foreach ($result as $uid => $contentElement) {
+            $result[$uid]['menu'] = $contentElement['menu']->render();
         }
         return $result;
+    }
+
+    private function getElementInfo(array $contentElement, array $contentElementConfig, BackendUserAuthentication $backendUser): array
+    {
+        $elementType = $GLOBALS['LANG']->sL($contentElementConfig['label']);
+        $elementName = $contentElement['header'] ? ContentUtility::shortenString($contentElement['header']) : '';
+        $elementId = $contentElement['uid'];
+        $elementIcon = $this->iconFactory->getIcon($contentElementConfig['icon'], Icon::SIZE_SMALL)->render();
+
+        return [
+            'elementType' => $elementType,
+            'elementName' => $elementName,
+            'elementId' => $elementId,
+            'elementIcon' => $elementIcon,
+        ];
     }
 
     private function processNewButton(Button &$button, string $identifier, ButtonType $type, ?string $label = null, ?string $url = null, ?string $icon = null): void

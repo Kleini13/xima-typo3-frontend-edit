@@ -18,7 +18,7 @@ use TYPO3Fluid\Fluid\Core\ViewHelper\AbstractViewHelper;
 *
 * Output:
 * ```html
-* <input type="hidden" class="xima-typo3-frontend-edit--data" value="{"label": "News Title", "uid": 12, "table": "tx_news_domain_model_news", "icon": "content-news"}" />
+* <input type="hidden" class="frontend-edit--data" value="{"label": "News Title", "uid": 12, "table": "tx_news_domain_model_news", "icon": "content-news"}" />
 * ```
 */
 class DataViewHelper extends AbstractViewHelper
@@ -82,6 +82,6 @@ class DataViewHelper extends AbstractViewHelper
                 $dataAttributes[$key] = $value;
             }
         }
-        return sprintf('<input type="hidden" class="xima-typo3-frontend-edit--data %s" value="%s" />', $class, htmlentities(json_encode($dataAttributes), ENT_QUOTES));
+        return sprintf('<input type="hidden" class="frontend-edit--data %s" value="%s" />', $class, htmlentities(json_encode($dataAttributes), ENT_QUOTES));
     }
 }
