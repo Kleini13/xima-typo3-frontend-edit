@@ -8,7 +8,6 @@ use TYPO3\CMS\Core\Database\Connection;
 use TYPO3\CMS\Core\Database\ConnectionPool;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\RootlineUtility;
-use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 
 class ContentUtility
 {
@@ -58,14 +57,9 @@ class ContentUtility
     {
         $tca = $cType === 'list' ? $GLOBALS['TCA']['tt_content']['columns']['list_type']['config']['items'] : $GLOBALS['TCA']['tt_content']['columns']['CType']['config']['items'];
 
-        if (version_compare(VersionNumberUtility::getCurrentTypo3Version(), '12.0.0', '<')) {
-            $valueKey = 1;
-        } else {
-            $valueKey = 'value';
-        }
         foreach ($tca as $item) {
-            if (($cType === 'list' && $item[$valueKey] === $listType) || $item[$valueKey] === $cType) {
-                return self::mapContentElementConfig($item);
+            if (($cType === 'list' && $item['value'] === $listType) || $item['value'] === $cType) {
+                return $item;
             }
         }
 
@@ -89,16 +83,4 @@ class ContentUtility
         return strlen($string) > $maxLength ? substr($string, 0, $maxLength) . '…' : $string;
     }
 
-    public static function mapContentElementConfig(array $config): array
-    {
-        if (version_compare(VersionNumberUtility::getCurrentTypo3Version(), '12.0.0', '>=')) {
-            return $config;
-        }
-        return [
-            'label' => $config[0],
-            'value' => $config[1],
-            'icon' => $config[2],
-            'group' => $config[3],
-        ];
-    }
 }

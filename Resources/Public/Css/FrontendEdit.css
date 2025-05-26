@@ -13,38 +13,35 @@
 
     --frontend-edit-border-radius: 0.25rem;
     --frontent-edit-box-shadow: 0 0 0.0625rem 0.0625rem rgba(0, 0, 0, .1);
-    --frontent-edit-outline: 1px;
-    --frontent-edit-outline-spezial: 1px;
     --frontent-edit-font-family: 'Helvetica Neue', Helvetica, Arial, Verdana, sans-serif;
 }
     
 /* Class renamed to indicator without using the term container */
 .frontend-edit--indicator {
-    outline: var(--frontent-edit-outline) dashed #424747;
+    outline: 1px dashed #424747;
 }
 /* class definition for b13 container using the cType name */
 .frontend-edit--indicator[class*="section"] {
-    outline: var(--frontent-edit-outline-spezial) solid var(--frontend-edit-section-color);
+    outline: 1.5px solid var(--frontend-edit-section-color);
     outline-offset: 1.5rem;
-    background-color: hsl(from var(--frontend-edit-section-color) h s l / 0.05);
 }
 .frontend-edit--indicator[class*="container"] {
-    outline: var(--frontent-edit-outline-spezial) solid var(--frontend-edit-container-color);
+    outline: 1px solid var(--frontend-edit-container-color);
     outline-offset: 1.5rem;
     background-color: hsl(from var(--frontend-edit-container-color) h s l / 0.1);
 }
 .frontend-edit--indicator[class*="container"][class*="md"] {
-    outline: var(--frontent-edit-outline-spezial) solid var(--frontend-edit-container-md-color);
+    outline: 1px solid var(--frontend-edit-container-md-color);
     outline-offset: 1.5rem;
     background-color: hsl(from var(--frontend-edit-container-md-color) h s l / 0.1);
 }
 .frontend-edit--indicator[class*="container"][class*="sm"] {
-    outline: var(--frontent-edit-outline-spezial) solid var(--frontend-edit-container-sm-color);
+    outline: 1px solid var(--frontend-edit-container-sm-color);
     outline-offset: 1.5rem;
     background-color: hsl(from var(--frontend-edit-container-sm-color) h s l / 0.1);
 }
 .frontend-edit--indicator[class*="container"][class*="xs"] {
-    outline: var(--frontent-edit-outline-spezial) solid var(--frontend-edit-container-xs-color);
+    outline: 1px solid var(--frontend-edit-container-xs-color);
     outline-offset: 1.5rem;
     background-color: hsl(from var(--frontend-edit-container-xs-color) h s l / 0.1);
 }

@@ -8,7 +8,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Core\Context\Context;
 use TYPO3\CMS\Core\Context\TypoScriptAspect;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Core\Utility\VersionNumberUtility;
 
 final class SettingsService
 {
@@ -94,16 +93,10 @@ final class SettingsService
         }
 
         try {
-            if (version_compare(VersionNumberUtility::getCurrentTypo3Version(), '12.0.0', '<')) {
-                $fullTypoScript = $this->getTypoScriptSetupArrayV11();
-            } else {
-                $fullTypoScript = $this->getTypoScriptSetupArrayV12($GLOBALS['TYPO3_REQUEST']);
-            }
-
+            $fullTypoScript = $this->getTypoScriptSetupArray($GLOBALS['TYPO3_REQUEST']);
             $settings = $fullTypoScript['plugin.']['tx_ximatypo3frontendedit.']['settings.'] ?? [];
             $this->configuration = GeneralUtility::removeDotsFromTS($settings);
         } catch (\Exception $e) {
-            error_log('Frontend Edit SettingsService: Failed to get TypoScript configuration: ' . $e->getMessage());
             // Return empty configuration as fallback
             $this->configuration = [];
         }
@@ -111,24 +104,7 @@ final class SettingsService
         return $this->configuration;
     }
 
-    /**
-    * These methods need to handle the case that the TypoScript setup array is not available within full cached setup.
-    * I used this workaround from https://github.com/derhansen/fe_change_pwd to ensure that the TypoScript setup is available.
-    *
-    * @return array
-    */
-    private function getTypoScriptSetupArrayV11(): array
-    {
-        // Ensure, TSFE setup is loaded for cached pages
-        if ($GLOBALS['TSFE']->tmpl === null || ($GLOBALS['TSFE']->tmpl && empty($GLOBALS['TSFE']->tmpl->setup))) {
-            GeneralUtility::makeInstance(Context::class)
-                ->setAspect('typoscript', GeneralUtility::makeInstance(TypoScriptAspect::class, true));
-            $GLOBALS['TSFE']->getConfigArray();
-        }
-        return $GLOBALS['TSFE']->tmpl->setup;
-    }
-
-    private function getTypoScriptSetupArrayV12(ServerRequestInterface $request): array
+    private function getTypoScriptSetupArray(ServerRequestInterface $request): array
     {
         try {
             // Try to get TypoScript from request attribute first

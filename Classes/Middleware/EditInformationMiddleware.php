@@ -38,12 +38,10 @@ class EditInformationMiddleware implements MiddlewareInterface
                 $language = $request->getAttribute('language');
                 
                 if (!$routing) {
-                    error_log('Frontend Edit: No routing attribute found in request');
                     return new JsonResponse(['error' => 'No routing information available'], 400);
                 }
                 
                 if (!$language) {
-                    error_log('Frontend Edit: No language attribute found in request');
                     return new JsonResponse(['error' => 'No language information available'], 400);
                 }
 
@@ -55,12 +53,10 @@ class EditInformationMiddleware implements MiddlewareInterface
                 $data = json_decode($bodyContents, true) ?? [];
                 
                 if ($bodyContents && json_last_error() !== JSON_ERROR_NONE) {
-                    error_log('Frontend Edit: JSON decode error: ' . json_last_error_msg());
                     return new JsonResponse(['error' => 'Invalid JSON data'], 400);
                 }
 
                 if (!$this->checkBackendUserPageAccess((int)$pid)) {
-                    error_log('Frontend Edit: Backend user has no access to page ' . $pid);
                     return new JsonResponse(['error' => 'Access denied'], 403);
                 }
 

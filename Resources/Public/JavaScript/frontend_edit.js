@@ -47,46 +47,19 @@ document.addEventListener('DOMContentLoaded', function () {
     const url = new URL(window.location.href);
     url.searchParams.set('type', '1729341864');
 
-    try {
-      console.log('Frontend Edit: Fetching content elements...', {
-        url: url.toString(),
-        dataItems: dataItems
-      });
+    const response = await fetch(url.toString(), {
+      cache: 'no-cache',
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json",
+        "X-Requested-With": "XMLHttpRequest"
+      },
+      body: JSON.stringify(dataItems),
+      credentials: 'same-origin'
+    });
 
-      const response = await fetch(url.toString(), {
-        cache: 'no-cache',
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-          "X-Requested-With": "XMLHttpRequest"
-        },
-        body: JSON.stringify(dataItems),
-        credentials: 'same-origin'
-      });
-
-      console.log('Frontend Edit: Response received', {
-        status: response.status,
-        statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries())
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Frontend Edit: Request failed', {
-          status: response.status,
-          statusText: response.statusText,
-          responseText: errorText
-        });
-        throw new Error(`Failed to fetch content elements: ${response.status} ${response.statusText}${errorText ? ' - ' + errorText : ''}`);
-      }
-
-      const jsonResponse = await response.json();
-      console.log('Frontend Edit: JSON response parsed', jsonResponse);
-      return jsonResponse;
-    } catch (error) {
-      console.error('Frontend Edit: Fetch error', error);
-      throw error;
-    }
+    if (!response.ok) throw new Error('Failed to fetch content elements');
+    return response.json();
   };
 
   /**
