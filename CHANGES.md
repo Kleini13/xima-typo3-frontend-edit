@@ -87,6 +87,40 @@ When enabled, the edit button becomes a direct link to the edit form, and a sepa
 
 ---
 
+### 4. CType-Specific CSS Classes
+
+**Purpose**: Add CType-specific CSS classes to wrapper and indicator elements for enhanced styling capabilities and improved CSS selector compatibility.
+
+#### Files Modified:
+- `Resources/Public/JavaScript/frontend_edit.js`:
+  - Added CType-specific class to indicator elements: `frontend-edit--indicator-${contentElement.element.CType}`
+  - Added CType-specific class to wrapper elements: `frontend-edit--wrapper-${contentElement.element.CType}`
+  - Updated CSS class from `frontend-edit--edit-container` to `frontend-edit--indicator` for compatibility
+
+#### Implementation Details:
+```javascript
+// Add CType-specific class to the element
+if (contentElement.element && contentElement.element.CType) {
+  element.classList.add(`frontend-edit--indicator-${contentElement.element.CType}`);
+}
+
+// Create wrapper with CType-specific class
+const wrapperElement = document.createElement('div');
+wrapperElement.className = `frontend-edit--wrapper frontend-edit--wrapper-${contentElement.element.CType}`;
+```
+
+#### Functionality:
+- **Enhanced Styling**: Allows for CType-specific styling through CSS selectors
+- **Better Targeting**: Enables precise styling for different content element types
+- **Improved Compatibility**: CSS class name standardization ensures consistent selector functionality
+
+#### Benefits:
+- **Flexible Styling**: Target specific content types (e.g., `.frontend-edit--indicator-textmedia`, `.frontend-edit--wrapper-header`)
+- **Backward Compatibility**: Maintains existing functionality while adding new capabilities
+- **Consistent Naming**: Standardized CSS class naming convention across the extension
+
+---
+
 
 ## Technical Implementation Details
 
