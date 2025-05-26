@@ -8,7 +8,34 @@ services:
         resource: '../Classes/*'
         exclude: '../Classes/Domain/Model/*'
 
+    # Modern Site Configuration Service (TYPO3 v13)
+    Xima\XimaTypo3FrontendEdit\Service\SiteConfigurationService:
+        public: true
+        arguments:
+            $extensionConfiguration: '@TYPO3\CMS\Core\Configuration\ExtensionConfiguration'
+
+    # Alias for backward compatibility
+    Xima\XimaTypo3FrontendEdit\Service\SettingsService:
+        alias: Xima\XimaTypo3FrontendEdit\Service\SiteConfigurationService
+        public: true
+
+    # Event Listeners with modern v13 configuration
     Xima\XimaTypo3FrontendEdit\EventListener\ModifyButtonBarEventListener:
-      tags:
-        - name: event.listener
-          identifier: 'xima-typo3-frontend-edit/backend/modify-button-bar'
+        tags:
+            - name: event.listener
+              identifier: 'xima-typo3-frontend-edit/backend/modify-button-bar'
+              method: '__invoke'
+
+    # Middleware with proper DI
+    Xima\XimaTypo3FrontendEdit\Middleware\EditInformationMiddleware:
+        arguments:
+            $menuGenerator: '@Xima\XimaTypo3FrontendEdit\Service\MenuGenerator'
+            $extensionConfiguration: '@TYPO3\CMS\Core\Configuration\ExtensionConfiguration'
+
+    # MenuGenerator with modern service injection
+    Xima\XimaTypo3FrontendEdit\Service\MenuGenerator:
+        arguments:
+            $iconFactory: '@TYPO3\CMS\Core\Imaging\IconFactory'
+            $eventDispatcher: '@Psr\EventDispatcher\EventDispatcherInterface'
+            $settingsService: '@Xima\XimaTypo3FrontendEdit\Service\SiteConfigurationService'
+            $extensionConfiguration: '@TYPO3\CMS\Core\Configuration\ExtensionConfiguration'

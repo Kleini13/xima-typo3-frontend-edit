@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Xima\XimaTypo3FrontendEdit\Service;
 
+use Psr\Http\Message\ServerRequestInterface;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Backend\Utility\BackendUtility;
 use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
@@ -26,10 +27,26 @@ final class MenuGenerator
     public function __construct(
         protected readonly IconFactory $iconFactory,
         protected readonly EventDispatcher $eventDispatcher,
-        protected readonly SettingsService $settingsService,
+        protected readonly SiteConfigurationService $settingsService,
         protected readonly ExtensionConfiguration $extensionConfiguration
     ) {
         $this->configuration = $this->extensionConfiguration->get(Configuration::EXT_KEY);
+    }
+
+    /**
+     * Modern method that accepts request for site configuration initialization
+     */
+    public function getDropdownWithRequest(ServerRequestInterface $request, int $pid, string $returnUrl, int $languageUid, array $data = []): array
+    {
+        // Initialize site configuration service with current request
+        $this->settingsService->initializeFromRequest($request);
+        
+        // Check if frontend editing is enabled for this site
+        if (!$this->settingsService->isFrontendEditEnabled()) {
+            return [];
+        }
+        
+        return $this->getDropdown($pid, $returnUrl, $languageUid, $data);
     }
 
     public function getDropdown(int $pid, string $returnUrl, int $languageUid, array $data = []): array

@@ -36,6 +36,7 @@ class EditInformationMiddleware implements MiddlewareInterface
 
                 $routing = $request->getAttribute('routing');
                 $language = $request->getAttribute('language');
+                $site = $request->getAttribute('site');
                 
                 if (!$routing) {
                     return new JsonResponse(['error' => 'No routing information available'], 400);
@@ -43,6 +44,10 @@ class EditInformationMiddleware implements MiddlewareInterface
                 
                 if (!$language) {
                     return new JsonResponse(['error' => 'No language information available'], 400);
+                }
+
+                if (!$site) {
+                    return new JsonResponse(['error' => 'No site information available'], 400);
                 }
 
                 $pid = $routing->getPageId();
@@ -60,7 +65,9 @@ class EditInformationMiddleware implements MiddlewareInterface
                     return new JsonResponse(['error' => 'Access denied'], 403);
                 }
 
-                $dropdownData = $this->menuGenerator->getDropdown(
+                // Initialize MenuGenerator with current request context
+                $dropdownData = $this->menuGenerator->getDropdownWithRequest(
+                    $request,
                     (int)$pid,
                     $returnUrl,
                     (int)$languageUid,
